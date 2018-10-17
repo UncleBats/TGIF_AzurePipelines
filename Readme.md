@@ -2,25 +2,29 @@
 ![alt text](./images/Multiple-agents.jpg)
 
 1. create account
+
     * start page for azure devops services user guide https://docs.microsoft.com/en-us/azure/devops/user-guide/?view=vsts
     * Create account https://docs.microsoft.com/en-us/azure/devops/user-guide/sign-up-invite-teammates?view=vsts
     * Create a project
 
-![alt text](./images/Build.jpg)
 1. Create build for echo application windows
-	- Download the code from erick repo 'git clone https://github.com/ErickSegaar/TGIF_AzurePipelines.git`
-	- Push it into azure devops 
+
+    * ![alt text](./images/Build.jpg)
+	* Download the code from erick repo 'git clone https://github.com/ErickSegaar/TGIF_AzurePipelines.git`
+	* Push it into azure devops 
 		(git remote set-url origin https://zwarebats@dev.azure.com/zwarebats/TGIF_Pipelines/_git/EchoConsole
 		 git push -u origin --all)
-	- Create new build from template
+	* Create new build from template
         - Click Use the visual designer to create a pipeline without YAML.
         ![alt text](./images/CreateFirstBuild.PNG)
         -Continue
         ![alt text](./images/NetDesktop.PNG)
         -Save and queue`
 
-![alt text](./images/Deploy.jpg)
+
 1. Create release for echo single environment
+
+    ![alt text](./images/Deploy.jpg)
 	- create new empty release definition (Empty Job)
     - Add artifact of the build
     - Add powershell task to the first environment
@@ -37,8 +41,10 @@
     - save and run release
 	- Talk about approvals
 
-![alt text](./images/Multiple-Stages.jpg)
+
 1. Change the code to use variables
+
+    ![alt text](./images/Multiple-Stages.jpg)
 	- enable CI
     Go to your CI build and choose edit, triggers and enable continuous integration
 	- enable CD
@@ -59,6 +65,7 @@
 	- Now commit your changes, with a comment `git commit -m 'changed my program with application settings'` and watch what happens, talk
 
 1. Change release to inject pipelines for different environment
+
     - go to the marketplace and search & install "Replace Tokens"
 	- add 2 more environments with different environment variables
     - edit the release pipeline
@@ -67,7 +74,7 @@
     - now go to your repos tab, echoconsole.app.release.config and change it to look like
 	- look at the variables, explain the scoping and add a unique value for ApplicationEnvironment for each scope
         Click on variable ==> pipeline variables and add 3 variables 1 in release scope, 1 in test scope and 1 in prod scope. Give them a fancy value. and the name ApplicationEnvironment 
-```
+    ```
     <?xml version="1.0" encoding="utf-8"?>
     <!--For more information on using transformations see the web.config examples at http://go.microsoft.com/fwlink/?LinkId=214134. -->
     <configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
@@ -76,11 +83,12 @@
         </appSettings>
     </configuration>
 
-```
+    ```
 	- Commit and run
 	- Talk about what happens
 
 1. Explain different possibilities for releaseing, libraries, taskgroup
+
     - Administering one pipeline can be easy but what makes it hard is when you have hundreds
     - How can you make it easier to change multiple envrionments at once, explain versions and drafts
     - Change the pipeline to use libraries and taskgroups
@@ -89,15 +97,17 @@
     - change the app.release.config and add `<add key="ApplicationEnvironment" value="#{GeneralInfo}#" xdt:Transform="Insert"/>`
     - change program.cs and add `Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("GeneralInfo"));`
 
-![alt text](./images/Multiple-Nodes.jpg)
 1. Change release to use parrallelization
+
+    ![alt text](./images/Multiple-Nodes.jpg)
 	- Add a variable array $(environments) with the value First, Second
 	- change agent mode of the latest 2 environments to parrallelization with 2 agents and run it.
     - change the tasklibrary to call the application to `&"$(System.DefaultWorkingDirectory)/_TGIF_Pipelines-.NET Desktop-CI/drop/EchoConsole/bin/Release/EchoConsole.exe" "$(Environments)"`
 	- Discuss scenario's for this mode
 
-![alt text](./images/Multiple-agents.jpg)
 1. Switch to javascript, yaml and linux
+
+    ![alt text](./images/Multiple-agents.jpg)
     - Clone https://github.com/MicrosoftDocs/pipelines-javascript.git into a new repository
     ```
     git clone https://github.com/MicrosoftDocs/pipelines-javascript.git
@@ -107,7 +117,6 @@
     - Create a new build definition, this time use the yaml one. Use the azure repo, next next finish. It will detect the yaml in the project
 
 1. Let's try to use 1 build for all your branches, when a branch comes from a feature branch it cannot be deployed automatically but only manual and only master can go past your test environment
-
 Done?
 
 1. Create tokens
