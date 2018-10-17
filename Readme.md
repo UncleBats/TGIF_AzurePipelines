@@ -7,7 +7,8 @@
     * Create a project
 
 ![alt text](./images/Build.jpg)
-1. Create build for echo application windows
+
+2. Create build for echo application windows
 	- Download the code from erick repo 'git clone https://github.com/ErickSegaar/TGIF_AzurePipelines.git`
 	- Push it into azure devops 
 		(git remote set-url origin https://zwarebats@dev.azure.com/zwarebats/TGIF_Pipelines/_git/EchoConsole
@@ -20,7 +21,8 @@
         -Save and queue`
 
 ![alt text](./images/Deploy.jpg)
-1. Create release for echo single environment
+
+3. Create release for echo single environment
 	- create new empty release definition (Empty Job)
     - Add artifact of the build
     - Add powershell task to the first environment
@@ -38,7 +40,8 @@
 	- Talk about approvals
 
 ![alt text](./images/Multiple-Stages.jpg)
-1. Change the code to use variables
+
+4. Change the code to use variables
 	- enable CI
     Go to your CI build and choose edit, triggers and enable continuous integration
 	- enable CD
@@ -58,7 +61,7 @@
 
 	- Now commit your changes, with a comment `git commit -m 'changed my program with application settings'` and watch what happens, talk
 
-1. Change release to inject pipelines for different environment
+5. Change release to inject pipelines for different environment
     - go to the marketplace and search & install "Replace Tokens"
 	- add 2 more environments with different environment variables
     - edit the release pipeline
@@ -80,7 +83,7 @@
 	- Commit and run
 	- Talk about what happens
 
-1. Explain different possibilities for releaseing, libraries, taskgroup
+6. Explain different possibilities for releaseing, libraries, taskgroup
     - Administering one pipeline can be easy but what makes it hard is when you have hundreds
     - How can you make it easier to change multiple envrionments at once, explain versions and drafts
     - Change the pipeline to use libraries and taskgroups
@@ -90,14 +93,16 @@
     - change program.cs and add `Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("GeneralInfo"));`
 
 ![alt text](./images/Multiple-Nodes.jpg)
-1. Change release to use parrallelization
+
+7. Change release to use parrallelization
 	- Add a variable array $(environments) with the value First, Second
 	- change agent mode of the latest 2 environments to parrallelization with 2 agents and run it.
     - change the tasklibrary to call the application to `&"$(System.DefaultWorkingDirectory)/_TGIF_Pipelines-.NET Desktop-CI/drop/EchoConsole/bin/Release/EchoConsole.exe" "$(Environments)"`
 	- Discuss scenario's for this mode
 
 ![alt text](./images/Multiple-agents.jpg)
-1. Switch to javascript, yaml and linux
+
+8. Switch to javascript, yaml and linux
     - Clone https://github.com/MicrosoftDocs/pipelines-javascript.git into a new repository
     ```
     git clone https://github.com/MicrosoftDocs/pipelines-javascript.git
@@ -106,15 +111,15 @@
     ```
     - Create a new build definition, this time use the yaml one. Use the azure repo, next next finish. It will detect the yaml in the project
 
-1. Let's try to use 1 build for all your branches, when a branch comes from a feature branch it cannot be deployed automatically but only manual and only master can go past your test environment
+9. Let's try to use 1 build for all your branches, when a branch comes from a feature branch it cannot be deployed automatically but only manual and only master can go past your test environment
 
 Done?
 
-1. Create tokens
+10. Create tokens
 	- create token with right scope
 	- explain system and PAT tokens
 
-1. Change build for web application to Private Linux
+11. Change build for web application to Private Linux
 	- Run the docker container with private agent, attached to your public azure devops
 	- change to the new queue with the private agent
 	- change up the container to get a extra layer for an environment variable
@@ -122,6 +127,6 @@ Done?
 	- force the build to the later agent
 	- Talk about scenario to use private agents, directing build capabilities, how this can be cool with k8s pods and scale
 
-1. Run Smoke test?
+12. Run Smoke test?
     - include smoketest for the validation of the environment variables
     - talk about the importance       
