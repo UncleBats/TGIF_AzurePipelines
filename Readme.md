@@ -1,55 +1,67 @@
 #Azure pipelines
 ![alt text](./images/Multiple-agents.jpg)
 
-1. create account
+1. Create account
 
-    * start page for azure devops services user guide https://docs.microsoft.com/en-us/azure/devops/user-guide/?view=vsts
-    * Create account https://docs.microsoft.com/en-us/azure/devops/user-guide/sign-up-invite-teammates?view=vsts
+    * Start page for azure devops services user guide:  
+    https://docs.microsoft.com/en-us/azure/devops/user-guide/?view=vsts
+    * Create account:  
+    https://docs.microsoft.com/en-us/azure/devops/user-guide/sign-up-invite-teammates?view=vsts
     * Create a project
 
-1. Create build for echo application windows
+1. Get the code  
+![alt text](./images/Build.jpg)
 
-    * ![alt text](./images/Build.jpg)
-	* Download the code from erick repo 'git clone https://github.com/ErickSegaar/TGIF_AzurePipelines.git`
-	* Push it into azure devops 
-		(git remote set-url origin https://zwarebats@dev.azure.com/zwarebats/TGIF_Pipelines/_git/EchoConsole
-		 git push -u origin --all)
-	* Create new build from template
-        - Click Use the visual designer to create a pipeline without YAML.
-        ![alt text](./images/CreateFirstBuild.PNG)
-        -Continue
-        ![alt text](./images/NetDesktop.PNG)
-        -Save and queue`
+    * In your project click on menu item `Repos`
+    * Check which ways you can create your repository
+![alt text](./images/GetCode.png)
+    * Click on `import` under heading `or import a repository`
+    * Enter URL: `https://github.com/ErickSegaar/TGIF_AzurePipelines.git` and click `import`
+    * After the import is done, you should be redirected to your Git repository.  
+    *Note: In this workshop we'll use the web interface for any code changes. If you prefer you can swith to Git. Use the `Clone` button on the top right to get your repository's URL.*
 
+1. Create your first build
+	* In your repository screen click on the `Set up build` button
+    * Select the `.NET Desktop` template and click `Apply`
+    ![alt text](./images/SelectTemplateFirstBuild.png)
+    * To get familiar with the build check each task
+    * Click `Save & queue` and in the new window click `Save & queue` again
+    * Click on the new build `#<date>.1` in the top-left to follow its progress:  
+    ![alt text](./images/FirstBuild.PNG)
 
-1. Create release for echo single environment
+1. Create release for single environment
 
     ![alt text](./images/Deploy.jpg)
-	- create new empty release definition (Empty Job)
-    - Add artifact of the build
-    - Add powershell task to the first environment
-    - Choose the build source ==> add
-    - In stage 1 click 1job, 0 task
-    - click the + button and add a powershell task
-    - Click on the powershell to configure
-    - choose inline with script `Write-Host "This task mimics the deployment as we won't go to azure today"`
-    - Rename the Display name to `Fake deployment`
-    - Right click clone the task
-    - Change the new task to `Call the application`
-    - Change script to `&"$(System.DefaultWorkingDirectory)/_TGIF_Pipelines-.NET Desktop-CI/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World"`
+	* In the menu go to `Pipeline` > `Releases` and click on `New pipeline`
+    * Select `Empty job`
+    * Add the artifact of the build with `Add an artifact`
+    * Click on `Stage 1` and change the `Stage name` to `Develop`
+    * Click on `Tasks` to define your deployment for `Develop`
+    * Click the + button and add a `Powershell` task
+    * Click on the `Powershell` task and configure it:
+        * Rename the Display name to `Fake deployment`
+        * Set `Type` to `inline`
+        * Overwrite the `Script` field with:  
+        `Write-Host "This task mimics the deployment as we won't go to azure today"`
+    * Right-click the `Powershell` task and select `Clone task(s)`
+    * Configure the cloned task:
+        * Rename the Display name to `Call the application`
+        * Change script to:  
+        `&"$(System.DefaultWorkingDirectory)/<sourceAlias>/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World"`  
+        *Note: you can get the `<sourceAlias>` by clicking on your artifact in your release pipeline (see the `Add an artifact` step)*
     ![alt text](./images/Add-powershell.PNG)
-    - save and run release
-	- Talk about approvals
-
+    * `Save` the release pipeline
+    * Create a new release to deploy your build and check the logs of the deployment
+	* Talk about approvals
 
 1. Change the code to use variables
 
     ![alt text](./images/Multiple-Stages.jpg)
-	- enable CI
-    Go to your CI build and choose edit, triggers and enable continuous integration
-	- enable CD
-		Go to your release pipeline and choose edit, and enable the lightning bolt at the artifact    
-	- Go to your repos tab, echoconsole.program.cs and change the file to look like
+	* Enable CI  
+    Go to your build definition and choose `Edit`, `Triggers`, check the box of `Enable continuous integration` and `Save`
+	* Enable CD  
+	Go to your release pipeline and choose `Edit`, and click on the lightning bolt at the artifact, set the `Continuous deployment trigger` to `Enabled` and `Save`
+	* Go to `Repos`, `EchoConsole/Program.cs` and click on `Edit` to change the file to:  
         ```
         static void Main(string[] args)
         {
@@ -61,41 +73,56 @@
             Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("ApplicationEnvironment"));
         }
         ```
-
-	- Now commit your changes, with a comment `git commit -m 'changed my program with application settings'` and watch what happens, talk
+	* Now commit your changes, with the comment `Changed my program with application settings`
+    * **Check your build and once that's finished the new release. Talk about what you see**
 
 1. Change release to inject pipelines for different environment
 
-    - go to the marketplace and search & install "Replace Tokens"
-	- add 2 more environments with different environment variables
-    - edit the release pipeline
-    - add replace tokenstep as the frist step in your first environment
-    - Go back to environment overview and clone your environment 2 times (test, prod)
-    - now go to your repos tab, echoconsole.app.release.config and change it to look like
-	- look at the variables, explain the scoping and add a unique value for ApplicationEnvironment for each scope
-        Click on variable ==> pipeline variables and add 3 variables 1 in release scope, 1 in test scope and 1 in prod scope. Give them a fancy value. and the name ApplicationEnvironment 
-    ```
-    <?xml version="1.0" encoding="utf-8"?>
-    <!--For more information on using transformations see the web.config examples at http://go.microsoft.com/fwlink/?LinkId=214134. -->
-    <configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
-        <appSettings>
-            <add key="ApplicationEnvironment" value="#{ApplicationEnvironment}#" xdt:Transform="Replace"/>
-        </appSettings>
-    </configuration>
+    * First we're going to install an extenstion from the marketplace:
+        * Click on the shopping bag icon in the top-right, then `Browse Marketplace` 
+        * Search & install "Replace Tokens"
+	* Add 2 more environments with different environment variables:
+        * Go to the `Edit` screen of your release pipeline and go to `Tasks`
+        * Add the `Replace Tokens` task as the first step of the deployment
+        * Go back to the pipeline overview and clone the `Develop` stage twice to:
+            * Test
+            * Prod
+        ![alt text](./images/CloneProdStage.png)
+        * Go to `Variables` and add the `ApplicationEnvironment` variable three times, each with a different value and scope (`Develop`, `Test`, `Prod`)
+        ![alt text](./images/AddStageScopedVariables.png)
+        * **Talk about the variables to understand its scoping and what each value means for each stage in your release pipeline**
+        * `Save` your release pipeline
+    * Now we're going to `Edit` the EchoConsole/app.release.config file in your repository to use the `ApplicationEnvironment` variable:
+        ```
+        <?xml version="1.0" encoding="utf-8"?>
+        <!--For more information on using transformations see the web.config examples at http://go.microsoft.com/fwlink/?LinkId=214134. -->
+        <configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+            <appSettings>
+                <add key="ApplicationEnvironment" value="#{ApplicationEnvironment}#" xdt:Transform="Replace"/>
+            </appSettings>
+        </configuration>
+        ```
+	- Commit the change
+	- **Talk about what happens (build, release pipeline and the values)**
 
-    ```
-	- Commit and run
-	- Talk about what happens
-
-1. Explain different possibilities for releaseing, libraries, taskgroup
-
-    - Administering one pipeline can be easy but what makes it hard is when you have hundreds
-    - How can you make it easier to change multiple envrionments at once, explain versions and drafts
-    - Change the pipeline to use libraries and taskgroups
-    - Create a library GeneralVariables, add variable GeneralInfo with a unique value
-    - Change the release to use the general varialbles library, scope release
-    - change the app.release.config and add `<add key="ApplicationEnvironment" value="#{GeneralInfo}#" xdt:Transform="Insert"/>`
-    - change program.cs and add `Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("GeneralInfo"));`
+1. Explain different possibilities for releasing, libraries, and taskgroups  
+Administering one pipeline can be easy, but what makes it hard is when you have hundreds. How can you make it easier to change multiple envrionments at once?
+    * **Talk about versions and drafts**
+    * Add a variable group
+        * Go to `Pipelines`, `Libraries` and click on `+ Variable Group`
+        * Give it the name `GeneralVariables` 
+        * Use `+ Add` to create variable `GeneralInfo` and give it a unique value
+        * `Save` the variable group
+    * Link the variable group to your release pipeline
+        * Go to the `Edit` screen of your release pipeline and go to `Variables`, `Variable groups` and click the `Link variable group` button
+        * Select `GeneralVariables` and click the `Link` button
+        * `Save` your release pipeline
+    * `Edit` the following code:
+        * In EchoConsole/app.release.config add:  
+        `<add key="ApplicationEnvironment" value="#{GeneralInfo}#" xdt:Transform="Insert"/>`
+        * In EchoConsole/program.cs add:  
+        `Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("GeneralInfo"));`
+    * **Check the release pipeline logs and discuss the changes**
 
 1. Change release to use parrallelization
 
