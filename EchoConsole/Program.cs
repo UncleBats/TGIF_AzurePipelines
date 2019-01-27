@@ -13,6 +13,7 @@ namespace EchoConsole
             {
                 Smoke smoke = new Smoke();
                 smoke.Execute();
+                return;
             }
 
             if (args.Any())

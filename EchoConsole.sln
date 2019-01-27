@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoConsole", "EchoConsole\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfDiagnosis", "Smoke\SelfDiagnosis.csproj", "{A324D44E-2BF3-41CC-88F7-6066E34AE247}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoConsoleTests", "EchoConsoleTests\EchoConsoleTests.csproj", "{DFC71809-39A5-4A51-BF94-42CBF80E86AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A324D44E-2BF3-41CC-88F7-6066E34AE247}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A324D44E-2BF3-41CC-88F7-6066E34AE247}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A324D44E-2BF3-41CC-88F7-6066E34AE247}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFC71809-39A5-4A51-BF94-42CBF80E86AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFC71809-39A5-4A51-BF94-42CBF80E86AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFC71809-39A5-4A51-BF94-42CBF80E86AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFC71809-39A5-4A51-BF94-42CBF80E86AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
