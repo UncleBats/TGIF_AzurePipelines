@@ -1,5 +1,6 @@
 ﻿using SelfDiagnosis;
 using System;
+using System.Configuration;
 
 namespace EchoConsole
 {
@@ -7,17 +8,37 @@ namespace EchoConsole
     {
         public override bool ValidateAppSetting(object item)
         {
-            throw new NotImplementedException();
-        }
+            switch (item.ToString())
+            {
+                case "ApplicationEnvironment":
+                    {
+                        if (ConfigurationManager.AppSettings.Get(item.ToString()) == "Local Debug")
+                        {
+                            return true;
+                        }
+                        return false;
+                    }
+                default:
+                    return false;
+            }
+       }
 
         public override bool ValidateConfigSetting(object item)
         {
-            throw new NotImplementedException();
+            switch (item.ToString())
+            {
+                default:
+                    //Just return true, doesnt matter for the workshop
+                    return true;
+            }
         }
 
         public override void ValidateOther()
         {
-            throw new NotImplementedException();
+            if (ConfigurationManager.AppSettings.Count >= 1)
+                AddSucces(nameof(ConfigurationManager.AppSettings) + ":Number of");
+            else
+                AddFailure(nameof(ConfigurationManager.AppSettings) + ":Number of", "Incorrect number of configurations applied");
         }
     }
 }

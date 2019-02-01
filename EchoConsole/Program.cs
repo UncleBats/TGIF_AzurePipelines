@@ -7,7 +7,7 @@ namespace EchoConsole
     {
         static void Main(string[] args)
         {
-            bool runSmoke = args.Contains("smoke");
+            bool runSmoke = args.Contains("-smoke");
 
             if (runSmoke)
             {
