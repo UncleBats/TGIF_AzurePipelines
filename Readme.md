@@ -88,8 +88,6 @@ We can't publish anything without the sources to create an artifact. All the cod
 1. Change the code to use variables
 
     ![alt text](./images/Multiple-Stages.jpg)
-	* Enable CI  
-    Go to your build definition and choose `Edit`, `Triggers`, check the box of `Enable continuous integration` and `Save`
 	* Enable CD  
 	Go to your release pipeline and choose `Edit`, and click on the lightning bolt at the artifact, set the `Continuous deployment trigger` to `Enabled` and `Save`
 	* Go to `Repos`, `EchoConsole/Program.cs` and click on `Edit` to change the file to:  
