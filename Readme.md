@@ -1,6 +1,9 @@
 #Azure pipelines
+
+Welcome to this workshop building and deploying applications with Azure Devops. This workshop focusses on the possibilities building your pipeline and the practice of creating a single artifact and using that same artifact for all your phases. Each phase building your confidence in the quality of your artifact and lowering the risk when it hits production.
 ![alt text](./images/Multiple-agents.jpg)
 
+Azure Devops is completely free up to 5 users. You can set it up without a creditcard and it is the only tool we will be using for this workshop.
 1. Create account
 
     * Start page for azure devops services user guide:  
@@ -9,7 +12,8 @@
     https://docs.microsoft.com/en-us/azure/devops/user-guide/sign-up-invite-teammates?view=vsts
     * Create a project
 
-1. Get the code  
+We can't publish anything without the sources to create an artifact. All the code needed during this workshop is in this repository or will be provide in the texts.
+1. We are going to get the code from the github repo into our own Azure Devops Git repo. Creating a build and running it will give us an independant place to validate our code. This prevents the "It works on my machine" conversation. After it builds we have our artifact to start our deployment.
 ![alt text](./images/Build.jpg)
 
     * In your project click on menu item `Repos`
@@ -21,13 +25,40 @@
     *Note: In this workshop we'll use the web interface for any code changes. If you prefer you can swith to Git. Use the `Clone` button on the top right to get your repository's URL.*
 
 1. Create your first build
-	* In your repository screen click on the `Set up build` button
+	* Go to Pipelines -> builds -> `New pipeline`
+    ![alt text](./images/AddingFirstBuild.png)
+    * We come back to yaml later for now choose the visual designer
+    ![alt text](./images/UseVisualDesigner.png)
+    * Leave everything default and click `Continue`
+    ![alt text](./images/CreateBuildContinue.png)
     * Select the `.NET Desktop` template and click `Apply`
     ![alt text](./images/SelectTemplateFirstBuild.png)
-    * To get familiar with the build check each task
+    * To get familiar with the build check each task. You can see the template added:
+        * The restore of nuget packages used for compilation of your application in our case NUnit
+        * Build and unittest our application
+        * Publish the symbols for later debug possibilities
+        * Publish the created artifacts back into Azure Devops
+
     * Click `Save & queue` and in the new window click `Save & queue` again
     * Click on the new build `#<date>.1` in the top-left to follow its progress:  
     ![alt text](./images/FirstBuild.PNG)
+
+1. Fixing your build
+    By now you should notice that your build failed, this is because there is a bug in the calculator class. 
+    * Check out the build log click your finished build see that the test failed and click `Tests`
+    ![](./images/BuildFailure.png)
+    * In the test results you can see that some tests succeeded and some failed
+    ![](./images/FailedTests.png)
+    To fix this we need to change the calculator class but first create a continues build. This will make it so that everytime we make a change to the repository a build will trigger to validate the changes. This will notify you when you made a change that does not compute. **This is not Continues Integration** CI requires more than a continues build and is a practice that requires more than just build every time you change a bit. 
+    * Enable Continuous Build
+    Go to your build definition and choose `Edit`, `Triggers`, check the box of `Enable continuous integration` and `Save`
+    * Fix the calculator class
+    Go to your `Repos` find the `Calculator.cs` click `Edit`
+    ![](./images/FixingTests.png)
+    Replace just the line `return a * b;` with `return a + b;` because we abviously made a mistake using a **Multiplication (*)** instead of **Add (+)**
+    * Click `Commit` add a nice message and click `Commit again`
+    ![](./images/Commit.png)
+    Now your build is triggered immediately, go and check it out now your tests should succeed.
 
 1. Create release for single environment
 
