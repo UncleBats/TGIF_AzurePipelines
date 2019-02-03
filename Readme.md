@@ -49,7 +49,7 @@ We can't publish anything without the sources to create an artifact. All the cod
     ![](./images/BuildFailure.png)
     * In the test results you can see that some tests succeeded and some failed
     ![](./images/FailedTests.png)
-    To fix this we need to change the calculator class but first create a continues build. This will make it so that everytime we make a change to the repository a build will trigger to validate the changes. This will notify you when you made a change that does not compute. **This is not Continues Integration** CI requires more than a continues build and is a practice that requires more than just build every time you change a bit. 
+    To fix this we need to change the calculator class but first create a continues build. This will make it so that everytime we make a change to the repository a build will trigger to validate the changes. This will notify you when you made a change that does not compute. **This is not Continues Integration** CI is a practice that requires more than just a continuous build every time you change your bits, but it is certainly part of it. 
     * Enable Continuous Build
     Go to your build definition and choose `Edit`, `Triggers`, check the box of `Enable continuous integration` and `Save`
     * Fix the calculator class
@@ -63,11 +63,12 @@ We can't publish anything without the sources to create an artifact. All the cod
 1. Create release for single environment
 
     ![alt text](./images/Deploy.jpg)
+    Now we have an artifact it is time to spin up some tasks to mimic the deployment. We are going to use powershell for that.
 	* In the menu go to `Pipeline` > `Releases` and click on `New pipeline`
     * Select `Empty job`
     * Add the artifact of the build with `Add an artifact`
-    * Click on `Stage 1` and change the `Stage name` to `Develop`
-    * Click on `Tasks` to define your deployment for `Develop`
+    * Click on `Stage 1` and change the `Stage name` to `Prod`
+    * Click on `Tasks` to define your deployment for `Prod`
     * Click the + button and add a `Powershell` task
     * Click on the `Powershell` task and configure it:
         * Rename the Display name to `Fake deployment`
@@ -78,8 +79,7 @@ We can't publish anything without the sources to create an artifact. All the cod
     * Configure the cloned task:
         * Rename the Display name to `Call the application`
         * Change script to:  
-        `&"$(System.DefaultWorkingDirectory)/<sourceAlias>/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World"`  
-        *Note: you can get the `<sourceAlias>` by clicking on your artifact in your release pipeline (see the `Add an artifact` step)*
+        `&"$(System.DefaultWorkingDirectory)/$(Build.DefinitionName)/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World"`  
     ![alt text](./images/Add-powershell.PNG)
     * `Save` the release pipeline
     * Create a new release to deploy your build and check the logs of the deployment
@@ -88,18 +88,40 @@ We can't publish anything without the sources to create an artifact. All the cod
 1. Change the code to use variables
 
     ![alt text](./images/Multiple-Stages.jpg)
-	* Enable CD  
+    Now we have an artifact deployed to our production environment we start to wonder if that is such a wise descision. Let's create a few more phases, we first want to test our deployment and want to have the possibility to test our code before it will be release to production. Therefor we create 2 phases `Develop` and `Test`. We also want to deploy to an environment that is "production like", as a final check that we won't bump into some trouble in prod that we could have caught earlier. (There are more strategy types verry usefull to give you more confidence in prod like matrix, ringdeployment and feature switch strategy. But this pre-prod is a well known and often wrongly used one.) Offcourse we can start and clone/copy the current `Prod` problem with that is whenever we make a change afterwards we need to apply that change to all phases identically, a disaster waiting to happen. Let's make sure alle phases always use the same steps for deployment.
+    * Create a taskgroup
+    ![](./images/CreateTaskgroup.png)
+    Go to the `Tasks` of you `Prod` stage and Ctrl+Click the `Fake deployment` and `Call the application` tasks. Now rightclick and choose `Create task group`. Next choose a nice name and leave everything default and click `Create`. We now made a taskgroup and you can re-use it in any phase. Next `Save`
+	* We should also Enable CD because whenever we have a new artifact it should be deployed automatic.
 	Go to your release pipeline and choose `Edit`, and click on the lightning bolt at the artifact, set the `Continuous deployment trigger` to `Enabled` and `Save`
 	* Go to `Repos`, `EchoConsole/Program.cs` and click on `Edit` to change the file to:  
         ```
-        static void Main(string[] args)
-        {
-            if (args.Any())
-            {
-                Console.WriteLine($"Given argument {args.First()}");
-            }
+        using System;
+        using System.Linq;
 
-            Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("ApplicationEnvironment"));
+        namespace EchoConsole
+        {
+            class Program
+            {
+                static void Main(string[] args)
+                {
+                    bool runSmoke = args.Contains("-smoke");
+
+                    if (runSmoke)
+                    {
+                        Smoke smoke = new Smoke();
+                        smoke.Execute();
+                        return;
+                    }
+
+                    if (args.Any())
+                    {
+                        Console.WriteLine($"Given argument {args.First()}");
+                    }
+
+                    Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("ApplicationEnvironment"));            
+                }
+            }
         }
         ```
 	* Now commit your changes, with the comment `Changed my program with application settings`
@@ -107,32 +129,36 @@ We can't publish anything without the sources to create an artifact. All the cod
 
 1. Change release to inject pipelines for different environment
 
+    If we are going to use the same artifact to all deployments how do we defere databaseconnections or different webadresses. We are accomplishing that by the use of tokens in the configuration files. Those tokens will be injected by the pipeline at deployment time.
     * First we're going to install an extenstion from the marketplace:
         * Click on the shopping bag icon in the top-right, then `Browse Marketplace` 
         * Search & install "Replace Tokens"
-	* Add 2 more environments with different environment variables:
-        * Go to the `Edit` screen of your release pipeline and go to `Tasks`
-        * Add the `Replace Tokens` task as the first step of the deployment
-        * Go back to the pipeline overview and clone the `Develop` stage twice to:
+	* Add 3 more environments with different environment variables:
+        * Go to the `Edit` screen of your release pipeline and go to `Tasks` right click the recently created task group `Manage task group`.
+        ![](./images/RightclickManage.png)
+        * Add the `Replace Tokens` task as the first step after the `Fake Deployment` step, save the Task group
+        * Go back to `Variables` and add the `ApplicationEnvironment` variable  with a prod value and scope `Prod`
+        * Go back to the pipeline overview and clone the `Prod` stage 3 times to:
+            * Develop
             * Test
-            * Prod
+            * Pre prod
         ![alt text](./images/CloneProdStage.png)
-        * Go to `Variables` and add the `ApplicationEnvironment` variable three times, each with a different value and scope (`Develop`, `Test`, `Prod`)
+        * now go back to the variables and notice that also the `ApplicationEnvironment` variable has been cloned. Replace the value for each environment to one to represent the scope. 
         ![alt text](./images/AddStageScopedVariables.png)
         * **Talk about the variables to understand its scoping and what each value means for each stage in your release pipeline**
         * `Save` your release pipeline
+
     * Now we're going to `Edit` the EchoConsole/app.release.config file in your repository to use the `ApplicationEnvironment` variable:
         ```
         <?xml version="1.0" encoding="utf-8"?>
         <!--For more information on using transformations see the web.config examples at http://go.microsoft.com/fwlink/?LinkId=214134. -->
         <configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
             <appSettings>
-                <add key="ApplicationEnvironment" value="#{ApplicationEnvironment}#" xdt:Transform="Replace"/>
+                <add key="ApplicationEnvironment" value="#{ApplicationEnvironment}#" xdt:Transform="Insert"/>
             </appSettings>
         </configuration>
         ```
-	- Commit the change
-	- **Talk about what happens (build, release pipeline and the values)**
+	- Commit the change and watch your build complete and start your deployment automaticly first to dev, test, preprod, prod. After the release completes you can validate the injected values from the log for each environment.
 
 1. Explain different possibilities for releasing, libraries, and taskgroups  
 Administering one pipeline can be easy, but what makes it hard is when you have hundreds. How can you make it easier to change multiple envrionments at once?
@@ -147,29 +173,58 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
         * Select `GeneralVariables` and click the `Link` button
         * `Save` your release pipeline
     * `Edit` the following code:
-        * In EchoConsole/app.release.config add:  
-        `<add key="ApplicationEnvironment" value="#{GeneralInfo}#" xdt:Transform="Insert"/>`
-        * In EchoConsole/program.cs add:  
-        `Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("GeneralInfo"));`
-    * **Check the release pipeline logs and discuss the changes**
+        * In EchoConsole/app.release.config replace:  
+        ```
+            <add key="ApplicationEnvironment" value="#{ApplicationEnvironment}#" xdt:Transform="Insert"/>
+        ```
+        with:
+        ```
+            <add key="ApplicationEnvironment" value="#{ApplicationEnvironment}#" xdt:Transform="Insert"/>
+            <add key="GeneralInfo" value="#{GeneralInfo}#" xdt:Transform="Insert"/>
+        ```
+        * In EchoConsole/program.cs replace: 
+        ```
+            if (args.Any())
+            {
+                Console.WriteLine($"Given argument {args.First()}");
+            }
+        ```
+        with:
+        ```
+            if (args.Any())
+            {
+                Console.WriteLine($"Given argument {args.First()}");
+            }
+            Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("GeneralInfo"));
+        ```
+    * check the changes in your build and deployment logs
+1. Add smoke tests to your deployment
+    
+    We just can't introduce new changes to our code and not test them. We have our unittest, and ofcourse the team will run tests on the test environment but we are changing configuration every step. We need to validat this before any of our customers uses our application. We do that by using smoke tests, and yes you do those tests also in production. There is a simple implementation in the code for the workshop. But how you implement depends on application type, architecture and environment. **But it is an absolute MUST, I can let an application crash just as hard using a configuration change as I can by changing the code**
+    * Go to the earlier created `taskgroup`
+            ![](./images/AddedSmokeTests.png)
+        - add a new inline `powershell` script right after the `Replace token` step. Make use of this script:
+    `&"$(System.DefaultWorkingDirectory)/$(Build.DefinitionName)/drop/EchoConsole/bin/Release/EchoConsole.exe" "-smoke"`
+        - Next add `Publish Test results` step with:
+            * Test result format `VSTest`
+            * Test result files `**/smoketestresult.trx`
+            * Under Advanced change Run this task to `Even if a previous task has failed, unless the deployment was canceled`
+    * Save and start a new release, now you can see once an environment completes a percentage succeeded test, click on it and adujust the filter to find out what worked and what didn't.
+    ![](./images/TestOverview.png)
+    ![](./images/SmokeResults.png)
 
 1. Change release to use parrallelization
 
     ![alt text](./images/Multiple-Nodes.jpg)
 	- Add a variable array $(environments) with the value First, Second
 	- change agent mode of the latest 2 environments to parrallelization with 2 agents and run it.
-    - change the tasklibrary to call the application to `&"$(System.DefaultWorkingDirectory)/_TGIF_Pipelines-.NET Desktop-CI/drop/EchoConsole/bin/Release/EchoConsole.exe" "$(Environments)"`
+    - change the tasklibrary to call the application to `&"$$(System.DefaultWorkingDirectory)/$(Build.DefinitionName)/drop/EchoConsole/bin/Release/EchoConsole.exe" "$(Environments)"`
 	- Discuss scenario's for this mode
 
 1. Switch to javascript, yaml and linux
 
     ![alt text](./images/Multiple-agents.jpg)
-    - Clone https://github.com/MicrosoftDocs/pipelines-javascript.git into a new repository
-    ```
-    git clone https://github.com/MicrosoftDocs/pipelines-javascript.git
-    git remote set-url origin https://zwarebats@dev.azure.com/zwarebats/TGIF_Pipelines/_git/xxx
-    git push -u origin --all
-    ```
+    - Import https://github.com/MicrosoftDocs/pipelines-javascript.git into a new repository
     - Create a new build definition, this time use the yaml one. Use the azure repo, next next finish. It will detect the yaml in the project
 
 1. Let's try to use 1 build for all your branches, when a branch comes from a feature branch it cannot be deployed automatically but only manual and only master can go past your test environment
@@ -186,7 +241,3 @@ Done?
 	- run another private agent with the new container
 	- force the build to the later agent
 	- Talk about scenario to use private agents, directing build capabilities, how this can be cool with k8s pods and scale
-
-1. Run Smoke test?
-    - include smoketest for the validation of the environment variables
-    - talk about the importance       
