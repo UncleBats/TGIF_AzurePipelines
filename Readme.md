@@ -79,7 +79,7 @@ We can't publish anything without the sources to create an artifact. All the cod
     * Configure the cloned task:
         * Rename the Display name to `Call the application`
         * Change script to:  
-        `&"$(System.DefaultWorkingDirectory)/$(Build.DefinitionName)/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World"`  
+        `&"$(System.DefaultWorkingDirectory)/$(Release.PrimaryArtifactSourceAlias)/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World"`  
     ![alt text](./images/Add-powershell.PNG)  
     * `Save` the release pipeline
     * Create a new release to deploy your build and check the logs of the deployment
@@ -205,7 +205,7 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
     * Go to the earlier created `taskgroup`  
             ![](./images/AddedSmokeTests.png)
         * add a new inline `powershell` script right after the `Replace token` step. Make use of this script:  
-    `&"$(System.DefaultWorkingDirectory)/$(Build.DefinitionName)/drop/EchoConsole/bin/Release/EchoConsole.exe" "-smoke"`
+    `&"$(System.DefaultWorkingDirectory)/$(Release.PrimaryArtifactSourceAlias)/drop/EchoConsole/bin/Release/EchoConsole.exe" "-smoke"`
         * Next add `Publish Test results` step with:
             * Test result format `VSTest`
             * Test result files `**/smoketestresult.trx`
@@ -219,7 +219,7 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
     ![alt text](./images/Multiple-Nodes.jpg)  
 	- Add a variable array $(environments) with the value First, Second
 	- change agent mode of the latest 2 environments to parrallelization with 2 agents and run it.
-    - change the tasklibrary to call the application to `&"$$(System.DefaultWorkingDirectory)/$(Build.DefinitionName)/drop/EchoConsole/bin/Release/EchoConsole.exe" "$(Environments)"`
+    - change the tasklibrary to call the application to `&"$$(System.DefaultWorkingDirectory)/$(Release.PrimaryArtifactSourceAlias)/drop/EchoConsole/bin/Release/EchoConsole.exe" "$(Environments)"`
 	- Discuss scenario's for this mode
 
 1. Switch to javascript, yaml and linux
