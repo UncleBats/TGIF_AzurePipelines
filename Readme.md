@@ -94,7 +94,7 @@ We can't publish anything without the sources to create an artifact. All the cod
     Go to the `Tasks` of you `Prod` stage and Ctrl+Click the `Fake deployment` and `Call the application` tasks. Now rightclick and choose `Create task group`. Next choose a nice name and leave everything default and click `Create`. We now made a taskgroup and you can re-use it in any phase. Next `Save`
 	* We should also Enable CD because whenever we have a new artifact it should be deployed automatic.  
 	Go to your release pipeline and choose `Edit`, and click on the lightning bolt at the artifact, set the `Continuous deployment trigger` to `Enabled` and `Save`
-	* Go to `Repos`, `EchoConsole/Program.cs` and click on `Edit` to change the file to:  
+	* First change the application to get some values from the applicationconfig. Go to `Repos`, `EchoConsole/Program.cs` and click on `Edit` to change the file to:  
         ```
         using System;
         using System.Linq;
