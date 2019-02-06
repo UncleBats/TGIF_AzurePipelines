@@ -144,6 +144,7 @@ We can't publish anything without the sources to create an artifact. All the cod
             * Pre prod  
         ![alt text](./images/CloneProdStage.png)
         * Arrange the environments that Develop triggers after release creation and each other environment after a succesfull deploy of the previous one
+        ![](./images/DeploymentOrder.png)
         * now go back to the variables and notice that also the `ApplicationEnvironment` variable has been cloned. Replace the value for each environment to one to represent the scope. 
         ![alt text](./images/AddStageScopedVariables.png)
         * **Talk about the variables to understand its scoping and what each value means for each stage in your release pipeline**
