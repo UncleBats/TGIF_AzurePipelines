@@ -12,7 +12,7 @@ namespace EchoConsole
             {
                 case "ApplicationEnvironment":
                     {
-                        if (ConfigurationManager.AppSettings.Get(item.ToString()) == "Local Debug")
+                        if (ConfigurationManager.AppSettings.Get(item.ToString().ToLower()).Contains("local"))
                         {
                             return true;
                         }
