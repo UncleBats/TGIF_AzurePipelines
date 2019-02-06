@@ -202,7 +202,7 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
     ![alt text](./images/Multiple-Nodes.jpg)  
 	- Add a variable array (comma separated value variabel)`Environments` with the value `First, Second`
 	- change agent mode of the latest 2 stages to `Multi-configuration` with 2 agents and `Multiplier` `$(Environments)`, save the pipeline.
-    - change the taskGroup to call the application to `&"$$(System.DefaultWorkingDirectory)/$(Release.PrimaryArtifactSourceAlias)/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World" "$(Environments)"`
+    - change the taskGroup to call the application to `&"$$(System.DefaultWorkingDirectory)/$(Release.PrimaryArtifactSourceAlias)/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World $(Environments)"`
 
 1. Switch to javascript, yaml and linux
 
