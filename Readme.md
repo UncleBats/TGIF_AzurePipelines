@@ -200,10 +200,9 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
 1. Change release to use parrallelization
 
     ![alt text](./images/Multiple-Nodes.jpg)  
-	- Add a variable array $(environments) with the value First, Second
-	- change agent mode of the latest 2 environments to parrallelization with 2 agents and run it.
-    - change the tasklibrary to call the application to `&"$$(System.DefaultWorkingDirectory)/$(Release.PrimaryArtifactSourceAlias)/drop/EchoConsole/bin/Release/EchoConsole.exe" "$(Environments)"`
-	- Discuss scenario's for this mode
+	- Add a variable array (comma separated value variabel)`Environments` with the value `First, Second`
+	- change agent mode of the latest 2 stages to `Multi-configuration` with 2 agents and `Multiplier` `$(Environments)`, save the pipeline.
+    - change the taskGroup to call the application to `&"$$(System.DefaultWorkingDirectory)/$(Release.PrimaryArtifactSourceAlias)/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World" "$(Environments)"`
 
 1. Switch to javascript, yaml and linux
 
@@ -214,14 +213,18 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
 1. Let's try to use 1 build for all your branches, when a branch comes from a feature branch it cannot be deployed automatically but only manual and only master can go past your test environment
 Done?
 
-1. Create tokens
-	- create token with right scope
-	- explain system and PAT tokens
+Time left? there will be a demo for the private agent with azure container instance
 
-1. Change build for web application to Private Linux
+1. Create tokens
+	- create token with right scope (Just use full)
+
+1. Change build for web application to default pool (instead of hosted)
 	- Run the docker container with private agent, attached to your public azure devops
-	- change to the new queue with the private agent
-	- change up the container to get a extra layer for an environment variable
-	- run another private agent with the new container
-	- force the build to the later agent
-	- Talk about scenario to use private agents, directing build capabilities, how this can be cool with k8s pods and scale
+        - install the azure cli https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
+        - create new resource group `az group create --name kiss --location westeurope`
+        - create azure container instance
+
+        `az container create --resource-group kiss --name aci-kiss --image microsoft/vsts-agent:ubuntu-16.04-standard --environment-variables VSTS_ACCOUNT=<accountname> VSTS_TOKEN=<PATTOKEN> VSTS_AGENT="$(hostname)-privateagent" VSTS_POOL=default VSTS_WORK='var/vsts/$VSTS_AGENT` 
+        
+        -wait till it is started +/- 15 min for a 10GB container
+	- queue the new javascript yaml build
