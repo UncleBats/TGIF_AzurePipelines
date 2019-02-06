@@ -211,10 +211,18 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
     - Import https://github.com/MicrosoftDocs/pipelines-javascript.git into a new repository
     - Create a new build definition, this time use the yaml one. Use the azure repo, next next finish. It will detect the yaml in the project
 
-1. Let's try to use 1 build for all your branches, when a branch comes from a feature branch it cannot be deployed automatically but only manual and only master can go past your test environment
-Done?
+1. Let's try to use 1 build for all your branches, when a branch comes from a feature branch it cannot be deployed automatically but only manual and only master can go past your test environment. You could use 
+```
+$a="refs/heads/master", "refs/heads/hf_*"
+write-output "validating sourcebranch to accept only $a"
 
-Time left? there will be a demo for the private agent with azure container instance
+if (-not @($a | ?{"$(Build.SourceBranch)" -like $_} ).Length -gt 0)
+{
+   Write-Host "##vso[task.logissue type=error;] $(Build.SourceBranch) is not a valid branch to put into $(Release.EnvironmentName)"
+   exit 1
+}
+```
+Done? Time left? We could do a demo for the private agent with azure container instance. Just ask me and we will see.
 
 1. Create tokens
 	- create token with right scope (Just use full)
