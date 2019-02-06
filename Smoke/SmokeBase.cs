@@ -18,9 +18,10 @@ namespace SelfDiagnosis
             {
                 try
                 {
-                    ValidateAppSetting(item);
-
-                    AddSucces(nameof(ConfigurationManager.AppSettings) + ":" + item.ToString());
+                    if (ValidateAppSetting(item))
+                        AddSucces(nameof(ConfigurationManager.AppSettings) + ":" + item.ToString());
+                    else
+                        AddFailure(nameof(ConfigurationManager.AppSettings) + ":" + item.ToString(), "Invalid");
                 }
                 catch (Exception ex)
                 {
@@ -32,8 +33,10 @@ namespace SelfDiagnosis
             {
                 try
                 {
-                    ValidateConfigSetting(item);
-                    AddSucces(nameof(ConfigurationManager.ConnectionStrings) + ":" + ((ConnectionStringSettings)item).Name);
+                    if (ValidateConfigSetting(item))
+                        AddSucces(nameof(ConfigurationManager.ConnectionStrings) + ":" + ((ConnectionStringSettings)item).Name);
+                    else
+                        AddFailure(nameof(ConfigurationManager.ConnectionStrings) + ":" + ((ConnectionStringSettings)item).Name, "Invalid");
                 }
                 catch (Exception ex)
                 {

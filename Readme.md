@@ -155,17 +155,7 @@ We are going to get the code from the github repo into your own Azure Devops Git
         ![alt text](./images/AddStageScopedVariables.png)
         * **Talk about the variables to understand its scoping and what each value means for each stage in your release pipeline**
         * `Save` your release pipeline
-    * Now we're going to `Edit` the `EchoConsole/app.release.config` file in your repository to use the `ApplicationEnvironment` variable:
-        ```
-        <?xml version="1.0" encoding="utf-8"?>
-        <!--For more information on using transformations see the web.config examples at http://go.microsoft.com/fwlink/?LinkId=214134. -->
-        <configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
-            <appSettings>
-                <add key="ApplicationEnvironment" value="#{ApplicationEnvironment}#" xdt:Transform="Insert"/>
-            </appSettings>
-        </configuration>
-        ```
-	* Commit the change and watch your build complete and start your deployment automaticly first to dev, test, preprod, prod. After the release completes you can validate the injected values from the log for each environment.
+    * start a new release and watch your deployment going automaticly first to dev, test, preprod, prod. After the release completes you can validate the injected values from the log for each environment.
 
 1. Explain different possibilities for releasing, libraries, and taskgroups  
 Administering one pipeline can be easy, but what makes it hard is when you have hundreds. How can you make it easier to change multiple envrionments at once?
@@ -182,18 +172,12 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
     * `Edit` the following code:
         * In EchoConsole/program.cs replace:  
         ```
-        if (args.Any())
-        {
-            Console.WriteLine($"Given argument {args.First()}");
-         }
+            Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("ApplicationEnvironment"));            
         ```
         with:  
         ```
-        if (args.Any())
-        {
-            Console.WriteLine($"Given argument {args.First()}");
-        }
-        Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("GeneralInfo"));
+            Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("ApplicationEnvironment"));            
+            Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings.Get("GeneralInfo")); 
         ```
     * check the changes in your build and deployment logs
 1. Add smoke tests to your deployment
@@ -201,12 +185,12 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
     We just can't introduce new changes to our code and not test them. We have our unittest, and ofcourse the team will run tests on the test environment but we are changing configuration every step. We need to validat this before any of our customers uses our application. We do that by using smoke tests, and yes you do those tests also in production. There is a simple implementation in the code for the workshop. But how you implement depends on application type, architecture and environment. **But it is an absolute MUST, we can let an application crash just as hard using a configuration change as I can by changing the code**
     * Go to the earlier created `taskgroup`  
             ![](./images/AddedSmokeTests.png)
-        * add a new inline `powershell` script right after the `Replace token` step. Make use of this script:  
+        * add a new inline `powershell` script right after the `Deploy` step. Make use of this script:  
     `&"$(System.DefaultWorkingDirectory)/$(Release.PrimaryArtifactSourceAlias)/drop/EchoConsole/bin/Release/EchoConsole.exe" "-smoke"`
         * Next add `Publish Test results` step with:
             * Test result format `VSTest`
             * Test result files `**/smoketestresult.trx`
-            * Under Advanced change Run this task to `Even if a previous task has failed, unless the deployment was canceled`
+            * Under Control Options change Run this task to `Even if a previous task has failed, unless the deployment was canceled`
     * Save and start a new release, now you can see once an environment completes a percentage succeeded test, click on it and adujust the filter to find out what worked and what didn't.  
     ![](./images/TestOverview.png)  
     ![](./images/SmokeResults.png)
