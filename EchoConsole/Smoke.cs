@@ -18,6 +18,14 @@ namespace EchoConsole
                         }
                         return false;
                     }
+                case "GeneralInfo":
+                    {
+                        if (ConfigurationManager.AppSettings.Get(item.ToString().ToLower()).Contains("local"))
+                        {
+                            return true;
+                        }
+                        return false;
+                    }
                 default:
                     return false;
             }

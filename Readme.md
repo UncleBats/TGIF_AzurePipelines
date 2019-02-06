@@ -194,6 +194,8 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
     * Save and start a new release, now you can see once an environment completes a percentage succeeded test, click on it and adujust the filter to find out what worked and what didn't.  
     ![](./images/TestOverview.png)  
     ![](./images/SmokeResults.png)
+    To fix any errors make sure there is somewhere in the value the word `local` in both the `GeneralInfo` library and the `ApplicationEnvironment` variables.
+    And start a `Create a release`.
 
 1. Change release to use parrallelization
 
