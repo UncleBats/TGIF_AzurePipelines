@@ -175,15 +175,6 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
         * Select `GeneralVariables` and click the `Link` button
         * `Save` your release pipeline
     * `Edit` the following code:
-        * In EchoConsole/app.release.config replace:  
-        ```
-        <add key="ApplicationEnvironment" value="#{ApplicationEnvironment}#" xdt:Transform="Insert"/>
-        ```
-        with:  
-        ```
-        <add key="ApplicationEnvironment" value="#{ApplicationEnvironment}#" xdt:Transform="Insert"/>
-        <add key="GeneralInfo" value="#{GeneralInfo}#" xdt:Transform="Insert"/>
-        ```
         * In EchoConsole/program.cs replace:  
         ```
         if (args.Any())
