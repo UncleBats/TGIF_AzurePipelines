@@ -202,7 +202,7 @@ Administering one pipeline can be easy, but what makes it hard is when you have 
     ![alt text](./images/Multiple-Nodes.jpg)  
 	- Add a variable array (comma separated value variabel)`Environments` with the value `First, Second`
 	- change agent mode of the latest 2 stages to `Multi-configuration` with 2 agents and `Multiplier` `$(Environments)`, save the pipeline.
-    - change the taskGroup to call the application to `&"$$(System.DefaultWorkingDirectory)/$(Release.PrimaryArtifactSourceAlias)/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World $(Environments)"` when you then go back to the root of the taskgroup your will notice that there has been an parameter added. Make sure you give a default value `$(Environments)`. ![](./images/DefaultParameterValue.png)
+    - change the taskGroup to call the application to `&"$(System.DefaultWorkingDirectory)/$(Release.PrimaryArtifactSourceAlias)/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World $(Environments)"` when you then go back to the root of the taskgroup your will notice that there has been an parameter added. Make sure you give a default value `$(Environments)`. ![](./images/DefaultParameterValue.png)
     Start a new release and see the last 2 stages run in parallel.
 
 1. Switch to javascript, yaml and linux
