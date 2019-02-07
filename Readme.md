@@ -47,7 +47,7 @@ We are going to get the code from the github repo into your own Azure Devops Git
 
     * Click on menu `Save & queue` and select menu item `Save & queue` and in the new window click on `Save & queue` again.
     * Click on the new build `#<date>.1` in the top-left to follow its progress:  
-    ![alt text](./images/FirstBuild.PNG)
+    ![alt text](./images/FirstBuild.png)
 
 1. Fixing your build
     By now you should notice that your build failed, this is because there is a bug in the calculator class. 
@@ -86,7 +86,7 @@ We are going to get the code from the github repo into your own Azure Devops Git
         * Rename the Display name to `Call the application`
         * Change `Script` to:  
         `&"$(System.DefaultWorkingDirectory)/$(Release.PrimaryArtifactSourceAlias)/drop/EchoConsole/bin/Release/EchoConsole.exe" "Hello World"`  
-    ![alt text](./images/Add-powershell.PNG)  
+    ![alt text](./images/Add-powershell.png)  
     * `Save` the release pipeline
     * Create a new release to deploy your build and check the logs of the deployment
 	* Talk about approvals
